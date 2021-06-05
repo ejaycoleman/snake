@@ -35,3 +35,7 @@
 .border {
   background-color: #282c34;
 }
+
+.snake {
+  background-color: red;
+}
