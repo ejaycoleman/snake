@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css';
 
-interface idk {
+interface snakeInt {
   snake: CellInt
 }
 
@@ -28,7 +28,7 @@ for (let i = 0; i <= gridSize; i++) {
   gridArray.push(i);
 }
 
-const Grid = ({snake}: idk): JSX.Element => 
+const Grid = ({snake}: snakeInt): JSX.Element => 
 <div>
   {gridArray.map(y => 
     <Row
@@ -63,12 +63,31 @@ const randCoord = (): CellInt => ({
   y: Math.floor(Math.random() * (gridSize) + 1),
 })
 
+const direction = {
+  UP: (x: number, y: number) => ({x, y: y - 1}),
+  DOWN: (x: number, y: number) => ({x, y: y + 1}),
+  LEFT: (x: number, y: number) => ({x: x - 1, y}),
+  RIGHT: (x: number, y: number) => ({x: x + 1, y})
+}
+
+const currDirection = "UP"
+
 const App = (): JSX.Element => {
   const [snake, setSnake] = useState<CellInt>({x: 0, y: 0});
 
   useEffect(() => 
     setSnake(randCoord)
   , [])
+
+  useEffect(() => {
+    const onTick = () => {
+      setSnake(direction[currDirection](snake.x, snake.y))
+    };
+
+    const interval = setInterval(onTick, 400);
+
+    return () => clearInterval(interval);
+  }, [snake]);
 
   return (
     <div className="App">
