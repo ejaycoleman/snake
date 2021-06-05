@@ -21,6 +21,18 @@ interface CellIntWithInfo {
   snake: CellInt
 }
 
+interface DirectionInt {
+  [key: string]: (x: number, y: number) => {
+    x: number;
+    y: number;
+  }
+}
+
+type Keycodes = {
+  [key: number]: string
+}
+
+
 const gridArray: number[] = []
 const gridSize = 35;
 
@@ -63,14 +75,21 @@ const randCoord = (): CellInt => ({
   y: Math.floor(Math.random() * (gridSize) + 1),
 })
 
-const direction = {
+const KEY_CODES_MAPPER: Keycodes = {
+  38: 'UP',
+  39: 'RIGHT',
+  37: 'LEFT',
+  40: 'DOWN',
+};
+
+const direction: DirectionInt = {
   UP: (x: number, y: number) => ({x, y: y - 1}),
   DOWN: (x: number, y: number) => ({x, y: y + 1}),
   LEFT: (x: number, y: number) => ({x: x - 1, y}),
   RIGHT: (x: number, y: number) => ({x: x + 1, y})
 }
 
-const currDirection = "UP"
+let currDirection = "UP"
 
 const App = (): JSX.Element => {
   const [snake, setSnake] = useState<CellInt>({x: 0, y: 0});
@@ -88,6 +107,19 @@ const App = (): JSX.Element => {
 
     return () => clearInterval(interval);
   }, [snake]);
+
+  const onChangeDirection = (event: {keyCode: number}) => {
+    if (KEY_CODES_MAPPER[event.keyCode]) {
+      currDirection = KEY_CODES_MAPPER[event.keyCode]
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener('keyup', onChangeDirection, false);
+
+    return () =>
+      window.removeEventListener('keyup', onChangeDirection, false);
+  }, []);
 
   return (
     <div className="App">
