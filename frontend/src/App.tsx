@@ -97,12 +97,16 @@ const direction: DirectionInt = {
 let currDirection = "DOWN"
 
 const App = (): JSX.Element => {
-  const [snake, setSnake] = useState<CellInt[]>([{x: 3, y: 1}, {x: 2, y: 1}, {x: 1, y: 1}]);
+  const [snake, setSnake] = useState<CellInt[]>([]);
   const [food, setFood] = useState<CellInt>({x: 10, y: 10})
 
-  // useEffect(() => 
-  //   setSnake(randCoord)
-  // , [])
+  useEffect(() => {
+    const tempSnake = [randCoord()]
+    tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+    tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+    setSnake(tempSnake)
+  }
+  , [])
 
   useEffect(() => {
     const onTick = () => {
