@@ -3,11 +3,13 @@ import './App.css';
 
 interface snakeInt {
   snake: CellInt[]
+  food: CellInt
 }
 
 interface RowInt {
   y: number,
-  snake: CellInt[]
+  snake: CellInt[],
+  food: CellInt
 }
 
 interface CellInt {
@@ -19,6 +21,7 @@ interface CellIntWithInfo {
   x: number
   y: number
   snake: CellInt[]
+  food: CellInt
 }
 
 interface DirectionInt {
@@ -40,32 +43,34 @@ for (let i = 0; i <= gridSize; i++) {
   gridArray.push(i);
 }
 
-const Grid = ({snake}: snakeInt): JSX.Element => 
+const Grid = ({snake, food}: snakeInt): JSX.Element => 
 <div>
   {gridArray.map(y => 
     <Row
       y={y}
       snake={snake}
+      food={food}
       key={y}
     />  
   )}
 </div>
 
-const Row = ({y, snake}: RowInt) => 
+const Row = ({y, snake, food}: RowInt) => 
   <div className='grid-row'>
     {gridArray.map(x => 
       <Cell
         x={x}
         y={y}
         snake={snake}
+        food={food}
         key={x}
       />
     
     )}
   </div>
 
-const Cell = ({x, y, snake}: CellIntWithInfo): JSX.Element => 
-  <div className={isBorder(x, y) ? 'border cell ' : 'cell ' + (snake.filter(cell => cell.x === x && cell.y === y).length > 0 ? 'snake' : '')}/>
+const Cell = ({x, y, snake, food}: CellIntWithInfo): JSX.Element => 
+  <div className={isBorder(x, y) ? 'border cell ' : 'cell ' + (snake.filter(cell => cell.x === x && cell.y === y).length > 0 ? 'snake ' : ' ') + (food.x === x && food.y === y ? 'food ' : ' ')}/>
 
 const isBorder = (x: number, y: number) => 
       x === 0 || y === 0 || x === gridSize || y === gridSize
@@ -93,6 +98,7 @@ let currDirection = "DOWN"
 
 const App = (): JSX.Element => {
   const [snake, setSnake] = useState<CellInt[]>([{x: 3, y: 1}, {x: 2, y: 1}, {x: 1, y: 1}]);
+  const [food, setFood] = useState<CellInt>({x: 10, y: 10})
 
   // useEffect(() => 
   //   setSnake(randCoord)
@@ -103,10 +109,14 @@ const App = (): JSX.Element => {
       const tempSnake = [...snake]
       tempSnake.pop()
       tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+      if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
+        setFood(randCoord())
+        tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+      } 
       setSnake(tempSnake)
     };
 
-    const interval = setInterval(onTick, 400);
+    const interval = setInterval(onTick, 100);
 
     return () => clearInterval(interval);
   }, [snake]);
@@ -126,7 +136,7 @@ const App = (): JSX.Element => {
 
   return (
     <div className="App">
-        <Grid snake={snake} />
+        <Grid snake={snake} food={food}/>
     </div>
   );
 }
