@@ -96,6 +96,10 @@ const direction: DirectionInt = {
 
 let currDirection = "DOWN"
 
+const checkCollision = (snake: CellInt[])  => {
+  return new Set(snake.map(s => s.x.toString() + "|" + s.y.toString())).size < snake.length
+}
+
 const App = (): JSX.Element => {
   const [snake, setSnake] = useState<CellInt[]>([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]);
   const [food, setFood] = useState<CellInt>({x: 10, y: 10})
@@ -112,7 +116,7 @@ const App = (): JSX.Element => {
 
       setSnake(tempSnake)
 
-      if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize) {
+      if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
         setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
         currDirection = "DOWN"
       }
@@ -126,10 +130,10 @@ const App = (): JSX.Element => {
   const onChangeDirection = (event: {keyCode: number}) => {
     if (KEY_CODES_MAPPER[event.keyCode]) {
       if (
-        currDirection === "DOWN" && KEY_CODES_MAPPER[event.keyCode] === "UP" || 
-        currDirection === "UP" && KEY_CODES_MAPPER[event.keyCode] === "DOWN" || 
-        currDirection === "LEFT" && KEY_CODES_MAPPER[event.keyCode] === "RIGHT" ||
-        currDirection === "RIGHT" && KEY_CODES_MAPPER[event.keyCode] === "LEFT") {
+        (currDirection === "DOWN" && KEY_CODES_MAPPER[event.keyCode] === "UP") || 
+        (currDirection === "UP" && KEY_CODES_MAPPER[event.keyCode] === "DOWN") || 
+        (currDirection === "LEFT" && KEY_CODES_MAPPER[event.keyCode] === "RIGHT") ||
+        (currDirection === "RIGHT" && KEY_CODES_MAPPER[event.keyCode] === "LEFT")) {
         return
       }
       currDirection = KEY_CODES_MAPPER[event.keyCode]
