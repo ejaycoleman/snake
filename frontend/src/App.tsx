@@ -103,6 +103,7 @@ const checkCollision = (snake: CellInt[])  => {
 const App = (): JSX.Element => {
   const [snake, setSnake] = useState<CellInt[]>([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]);
   const [food, setFood] = useState<CellInt>({x: 10, y: 10})
+  const [score, setScore] = useState<number>(0)
 
   useEffect(() => {
     const onTick = () => {
@@ -112,6 +113,7 @@ const App = (): JSX.Element => {
       if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
         setFood(randCoord())
         tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+        setScore(score + 1)
       } 
 
       setSnake(tempSnake)
@@ -149,6 +151,7 @@ const App = (): JSX.Element => {
 
   return (
     <div className="App">
+        <h1 style={{color: "black"}}>YOUR SCORE IS {score}</h1>
         <Grid snake={snake} food={food}/>
     </div>
   );
