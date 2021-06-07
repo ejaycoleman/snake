@@ -125,6 +125,13 @@ const App = (): JSX.Element => {
 
   const onChangeDirection = (event: {keyCode: number}) => {
     if (KEY_CODES_MAPPER[event.keyCode]) {
+      if (
+        currDirection === "DOWN" && KEY_CODES_MAPPER[event.keyCode] === "UP" || 
+        currDirection === "UP" && KEY_CODES_MAPPER[event.keyCode] === "DOWN" || 
+        currDirection === "LEFT" && KEY_CODES_MAPPER[event.keyCode] === "RIGHT" ||
+        currDirection === "RIGHT" && KEY_CODES_MAPPER[event.keyCode] === "LEFT") {
+        return
+      }
       currDirection = KEY_CODES_MAPPER[event.keyCode]
     }
   };
