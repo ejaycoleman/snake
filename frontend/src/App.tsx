@@ -97,7 +97,7 @@ const direction: DirectionInt = {
 let currDirection = "DOWN"
 
 const checkCollision = (snake: CellInt[])  => {
-  return new Set(snake.map(s => s.x.toString() + "|" + s.y.toString())).size < snake.length
+  return new Set(snake.map(s => s.x + "|" + s.y)).size < snake.length
 }
 
 const App = (): JSX.Element => {
