@@ -6,6 +6,10 @@ interface snakeInt {
   food: CellInt
 }
 
+interface AppInt {
+  placeSnake: CellInt[]
+}
+
 interface RowInt {
   y: number,
   snake: CellInt[],
@@ -69,8 +73,12 @@ const Row = ({y, snake, food}: RowInt) =>
     )}
   </div>
 
-const Cell = ({x, y, snake, food}: CellIntWithInfo): JSX.Element => 
-  <div className={isBorder(x, y) ? 'border cell ' : 'cell ' + (snake.filter(cell => cell.x === x && cell.y === y).length > 0 ? 'snake ' : ' ') + (food.x === x && food.y === y ? 'food ' : ' ')}/>
+const Cell = ({x, y, snake, food}: CellIntWithInfo): JSX.Element => {
+  // console.log(snake)
+  // return <div></div>
+  return <div className={isBorder(x, y) ? 'border cell ' : 'cell ' + (snake.filter(cell => cell.x === x && cell.y === y).length > 0 ? 'snake ' : ' ') + (food.x === x && food.y === y ? 'food ' : ' ')}/>
+}
+  
 
 const isBorder = (x: number, y: number) => 
       x === 0 || y === 0 || x === gridSize || y === gridSize
@@ -100,59 +108,62 @@ const checkCollision = (snake: CellInt[])  => {
   return new Set(snake.map(s => s.x + "|" + s.y)).size < snake.length
 }
 
-const App = (): JSX.Element => {
+const App = ({placeSnake}: AppInt): JSX.Element => {
   const [snake, setSnake] = useState<CellInt[]>([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]);
   const [food, setFood] = useState<CellInt>({x: 10, y: 10})
   const [score, setScore] = useState<number>(0)
 
-  useEffect(() => {
-    const onTick = () => {
-      const tempSnake = [...snake]
-      tempSnake.pop()
-      tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-      if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
-        setFood(randCoord())
-        tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-        setScore(score + 1)
-      } 
+  const [host, setHost] = useState<Boolean>(true)
 
-      setSnake(tempSnake)
+  // useEffect(() => {
+  //   const onTick = () => {
+  //     const tempSnake = [...snake]
+  //     tempSnake.pop()
+  //     tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+  //     if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
+  //       setFood(randCoord())
+  //       tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+  //       setScore(score + 1)
+  //     } 
 
-      if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
-        setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
-        currDirection = "DOWN"
-      }
-    };
+  //     setSnake(tempSnake)
 
-    const interval = setInterval(onTick, 100);
+  //     if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
+  //       setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+  //       currDirection = "DOWN"
+  //     }
+  //   };
 
-    return () => clearInterval(interval);
-  }, [snake]);
+  //   const interval = setInterval(onTick, 100);
 
-  const onChangeDirection = (event: {keyCode: number}) => {
-    if (KEY_CODES_MAPPER[event.keyCode]) {
-      if (
-        (currDirection === "DOWN" && KEY_CODES_MAPPER[event.keyCode] === "UP") || 
-        (currDirection === "UP" && KEY_CODES_MAPPER[event.keyCode] === "DOWN") || 
-        (currDirection === "LEFT" && KEY_CODES_MAPPER[event.keyCode] === "RIGHT") ||
-        (currDirection === "RIGHT" && KEY_CODES_MAPPER[event.keyCode] === "LEFT")) {
-        return
-      }
-      currDirection = KEY_CODES_MAPPER[event.keyCode]
-    }
-  };
+  //   return () => clearInterval(interval);
+  // }, [snake]);
 
-  React.useEffect(() => {
-    window.addEventListener('keyup', onChangeDirection, false);
+  // const onChangeDirection = (event: {keyCode: number}) => {
+  //   if (KEY_CODES_MAPPER[event.keyCode]) {
+  //     if (
+  //       (currDirection === "DOWN" && KEY_CODES_MAPPER[event.keyCode] === "UP") || 
+  //       (currDirection === "UP" && KEY_CODES_MAPPER[event.keyCode] === "DOWN") || 
+  //       (currDirection === "LEFT" && KEY_CODES_MAPPER[event.keyCode] === "RIGHT") ||
+  //       (currDirection === "RIGHT" && KEY_CODES_MAPPER[event.keyCode] === "LEFT")) {
+  //       return
+  //     }
+  //     currDirection = KEY_CODES_MAPPER[event.keyCode]
+  //   }
+  // };
 
-    return () =>
-      window.removeEventListener('keyup', onChangeDirection, false);
-  }, []);
+  // React.useEffect(() => {
+  //   window.addEventListener('keyup', onChangeDirection, false);
+
+  //   return () =>
+  //     window.removeEventListener('keyup', onChangeDirection, false);
+  // }, []);
 
   return (
     <div className="App">
         <h1 style={{color: "black"}}>YOUR SCORE IS {score}</h1>
-        <Grid snake={snake} food={food}/>
+        <button onClick={() => setHost(!host)}>You're a {host ? 'host' : 'client'}</button>
+        <Grid snake={placeSnake} food={food}/>
     </div>
   );
 }

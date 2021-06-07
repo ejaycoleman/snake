@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -7,16 +7,23 @@ import reportWebVitals from './reportWebVitals';
 import socketIOClient from "socket.io-client";
 const ENDPOINT = "http://localhost:4000";
 
+interface CellInt {
+  x: number
+  y: number
+}
+
 const SocketWrapper = () => {
+  const [snake, setSnake] = useState<CellInt[]>([{x: 1, y: 1}])
+
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
-    socket.on("FromAPI", data => {
-      console.log(data);
+    socket.on("moveSnake", data => {
+      setSnake(data)
     });
   }, []);
 
   return (
-    <App />
+    <App placeSnake={snake}/>
   );
 }
 

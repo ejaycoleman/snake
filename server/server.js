@@ -25,15 +25,15 @@ io.on("connection", (socket) => {
   if (interval) {
     clearInterval(interval);
   }
-  interval = setInterval(() => getApiAndEmit(socket), 1000);
+  let snake = [{x: 1, y: 1}]
+  interval = setInterval(() => {
+        snake = [{x: snake[0].x + 1, y: snake[0].y}]
+        socket.emit("moveSnake", snake);
+    }, 1000);
   socket.on("disconnect", () => {
     console.log("Client disconnected");
     clearInterval(interval);
   });
 });
-
-const getApiAndEmit = socket => {
-  socket.emit("FromAPI", "MSG");
-};
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
