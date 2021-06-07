@@ -76,8 +76,8 @@ const isBorder = (x: number, y: number) =>
       x === 0 || y === 0 || x === gridSize || y === gridSize
 
 const randCoord = (): CellInt => ({
-  x: Math.floor(Math.random() * (gridSize) + 1),
-  y: Math.floor(Math.random() * (gridSize) + 1),
+  x: Math.floor((Math.random() * (gridSize - 1)) + 1),
+  y: Math.floor((Math.random() * (gridSize - 1)) + 1),
 })
 
 const KEY_CODES_MAPPER: Keycodes = {
@@ -97,16 +97,8 @@ const direction: DirectionInt = {
 let currDirection = "DOWN"
 
 const App = (): JSX.Element => {
-  const [snake, setSnake] = useState<CellInt[]>([]);
+  const [snake, setSnake] = useState<CellInt[]>([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]);
   const [food, setFood] = useState<CellInt>({x: 10, y: 10})
-
-  useEffect(() => {
-    const tempSnake = [randCoord()]
-    tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-    tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-    setSnake(tempSnake)
-  }
-  , [])
 
   useEffect(() => {
     const onTick = () => {
@@ -117,7 +109,13 @@ const App = (): JSX.Element => {
         setFood(randCoord())
         tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
       } 
+
       setSnake(tempSnake)
+
+      if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize) {
+        setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+        currDirection = "DOWN"
+      }
     };
 
     const interval = setInterval(onTick, 100);
