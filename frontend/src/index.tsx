@@ -12,18 +12,21 @@ interface CellInt {
   y: number
 }
 
-const SocketWrapper = () => {
-  const [snake, setSnake] = useState<CellInt[]>([{x: 1, y: 1}])
+const socket = socketIOClient(ENDPOINT);
 
-  useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("moveSnake", data => {
-      setSnake(data)
-    });
-  }, []);
+const SocketWrapper = () => {
+  // const [snake, setSnake] = useState<CellInt[]>([{x: 1, y: 1}])
+
+  // useEffect(() => {
+    
+  //   // socket.on("moveSnake", data => {
+  //   //   setSnake(data)
+  //   // });
+  //   // return () => socket.disconnect();
+  // }, []);
 
   return (
-    <App placeSnake={snake}/>
+    <App socket={socket}/>
   );
 }
 
