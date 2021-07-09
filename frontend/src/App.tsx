@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, ChangeEvent } from 'react'
 import './App.css';
 
 interface snakeInt {
@@ -38,8 +38,6 @@ interface DirectionInt {
 type Keycodes = {
   [key: number]: string
 }
-
-const screen = 1
 
 const gridArray: number[] = []
 const gridSize = 35;
@@ -116,37 +114,47 @@ const App = ({socket}: AppInt): JSX.Element => {
 
   const [host, setHost] = useState<Boolean>(true)
 
+
+  const [roomID, setRoomID] = useState<number>(0)
+
   useEffect(() => {
+
+
     const onTick = () => {
-      let tempSnake = [...snake]
-      tempSnake.pop()
-
-      tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-      if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
-        setFood(randCoord())
+      if (snake.length !== 0) {
+        let tempSnake = [...snake]
+        tempSnake.pop()
+  
         tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-        setScore(score + 1)
-        socket.emit('foodEat', screen)
-      } 
+        if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
+          setFood(randCoord())
+          tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+          setScore(score + 1)
+          socket.emit('foodEat', roomID)
+        } 
+  
+        if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].y === gridSize || checkCollision(snake)) {
+          tempSnake = [{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]
+          currDirection = "DOWN"
+        }
+  
+        if (tempSnake[0].x === gridSize) {
+          socket.emit("changeSnake", roomID, tempSnake[0].y)
 
-      if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].y === gridSize || checkCollision(snake)) {
-        tempSnake = [{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]
-        currDirection = "DOWN"
-      }
+          // tempSnake.shift() NEED THIS 
 
-      if (tempSnake[0].x === gridSize) {
-        socket.emit("changeSnake", screen, tempSnake[0].y)
-        // console.log(tempSnake)
-        tempSnake.shift()
-        // console.log(tempSnake)
+          
+        }
+  
+  
+        setSnake(tempSnake)
+  
         
+  
       }
 
-
-      setSnake(tempSnake)
 
       
-
       
       
     };
@@ -171,14 +179,26 @@ const App = ({socket}: AppInt): JSX.Element => {
   };
 
   React.useEffect(() => {
+    
+
+
     window.addEventListener('keyup', onChangeDirection, false);
 
     return () =>
       window.removeEventListener('keyup', onChangeDirection, false);
   }, []);
 
+  React.useEffect(() => {
+    if (roomID !== 0) {
+      setSnake([])
+    }
+  }, [roomID])
+
+  
+
   return (
     <div className="App">
+        <input type="number" name="roomID" value={roomID} onChange={e => setRoomID(parseInt(e.target.value))} />     
         <h1 style={{color: "black"}}>YOUR SCORE IS {score}</h1>
         <button onClick={() => setHost(!host)}>You're a {host ? 'host' : 'client'}</button>
         <Grid snake={snake} food={food}/>

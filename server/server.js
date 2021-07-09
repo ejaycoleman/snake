@@ -54,9 +54,11 @@ io.on("connection", (socket) => {
   })
 
   socket.on("changeSnake", (screen, y) => {
-    if (screen === 1) {
+    if (screen === 0) {
       snakeOnLeft--
       snakeOnRight++
+
+      socket.emit('addNewSnake', {screen, y})
     } else if (screen === 2) {
       snakeOnLeft++
       snakeOnRight--

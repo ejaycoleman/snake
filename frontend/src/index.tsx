@@ -17,13 +17,13 @@ const socket = socketIOClient(ENDPOINT);
 const SocketWrapper = () => {
   // const [snake, setSnake] = useState<CellInt[]>([{x: 1, y: 1}])
 
-  // useEffect(() => {
+  useEffect(() => {
     
-  //   // socket.on("moveSnake", data => {
-  //   //   setSnake(data)
-  //   // });
-  //   // return () => socket.disconnect();
-  // }, []);
+    socket.on('addNewSnake',( data: any) => {
+      console.log(data)
+    })
+    // return () => socket.disconnect();
+  }, []);
 
   return (
     <App socket={socket}/>
