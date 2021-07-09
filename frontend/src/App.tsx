@@ -1,28 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import './App.css';
 
-interface snakeInt {
-  snake: CellInt[]
-  food: CellInt
-}
+import Grid, {CellInt} from './Grid/Grid'
 
-interface RowInt {
-  y: number,
-  snake: CellInt[],
-  food: CellInt
-}
-
-interface CellInt {
-  x: number
-  y: number
-}
-
-interface CellIntWithInfo {
-  x: number
-  y: number
-  snake: CellInt[]
-  food: CellInt
-}
 
 interface DirectionInt {
   [key: string]: (x: number, y: number) => {
@@ -43,37 +23,7 @@ for (let i = 0; i <= gridSize; i++) {
   gridArray.push(i);
 }
 
-const Grid = ({snake, food}: snakeInt): JSX.Element => 
-<div>
-  {gridArray.map(y => 
-    <Row
-      y={y}
-      snake={snake}
-      food={food}
-      key={y}
-    />  
-  )}
-</div>
 
-const Row = ({y, snake, food}: RowInt) => 
-  <div className='grid-row'>
-    {gridArray.map(x => 
-      <Cell
-        x={x}
-        y={y}
-        snake={snake}
-        food={food}
-        key={x}
-      />
-    
-    )}
-  </div>
-
-const Cell = ({x, y, snake, food}: CellIntWithInfo): JSX.Element => 
-  <div className={isBorder(x, y) ? 'border cell ' : 'cell ' + (snake.filter(cell => cell.x === x && cell.y === y).length > 0 ? 'snake ' : ' ') + (food.x === x && food.y === y ? 'food ' : ' ')}/>
-
-const isBorder = (x: number, y: number) => 
-      x === 0 || y === 0 || x === gridSize || y === gridSize
 
 const randCoord = (): CellInt => ({
   x: Math.floor((Math.random() * (gridSize - 1)) + 1),
@@ -142,7 +92,7 @@ const App = (): JSX.Element => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener('keyup', onChangeDirection, false);
 
     return () =>
@@ -152,7 +102,7 @@ const App = (): JSX.Element => {
   return (
     <div className="App">
         <h1 style={{color: "black"}}>YOUR SCORE IS {score}</h1>
-        <Grid snake={snake} food={food}/>
+        <Grid snake={snake} food={food} gridArray={gridArray} />
     </div>
   );
 }
