@@ -23,8 +23,6 @@ for (let i = 0; i <= gridSize; i++) {
   gridArray.push(i);
 }
 
-
-
 const randCoord = (): CellInt => ({
   x: Math.floor((Math.random() * (gridSize - 1)) + 1),
   y: Math.floor((Math.random() * (gridSize - 1)) + 1),

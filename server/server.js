@@ -18,22 +18,42 @@ const io = socketIO(server, {
     }
 });
 
-let interval;
+// let interval;
+
+let rooms = 0
 
 io.on("connection", (socket) => {
   console.log("New client connected");
-  if (interval) {
-    clearInterval(interval);
-  }
-  interval = setInterval(() => getApiAndEmit(socket), 1000);
+  // if (interval) {
+  //   clearInterval(interval);
+  // }
+  // interval = setInterval(() => getApiAndEmit(socket), 1000);
+
+
+
+  
+  socket.emit('newRoom', ++rooms)
+  socket.join(rooms);
+
+
+  socket.on('joinRoom', (room, callback) => {
+    socket.join(room);
+    callback({
+      room
+    });
+  })
+
+
+
+  
   socket.on("disconnect", () => {
     console.log("Client disconnected");
-    clearInterval(interval);
+    // clearInterval(interval);
   });
 });
 
-const getApiAndEmit = socket => {
-  socket.emit("FromAPI", "MSG");
-};
+// const getApiAndEmit = socket => {
+//   socket.emit("FromAPI", "MSG");
+// };
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
