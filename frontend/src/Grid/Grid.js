@@ -1,37 +1,12 @@
-import React from 'react'
+import React, {useContext, useEffect} from 'react'
 
-interface snakeInt {
-  snake: CellInt[]
-  food: CellInt
-  gridArray: number[]
-}
-
-interface RowInt {
-  y: number,
-  snake: CellInt[],
-  food: CellInt,
-  gridArray: number[]
-}
-
-export interface CellInt {
-    x: number
-    y: number
-}
-  
-interface CellIntWithInfo {
-x: number
-y: number
-snake: CellInt[]
-food: CellInt
-gridSize: number
-}
+// import { SocketContext } from '../socketContext'
 
 
-const isBorder = (x: number, y: number, gridSize: number) => 
+const isBorder = (x, y, gridSize) => 
   x === 0 || y === 0 || x === (gridSize - 1) || y === (gridSize - 1)
 
-const Grid = ({snake, food, gridArray}: snakeInt): JSX.Element => 
-<div>
+const Grid = ({snake, food, gridArray}) => <div>
   {gridArray.map(y => 
     <Row
       y={y}
@@ -43,7 +18,7 @@ const Grid = ({snake, food, gridArray}: snakeInt): JSX.Element =>
   )}
 </div>
 
-const Row = ({y, snake, food, gridArray}: RowInt) => 
+const Row = ({y, snake, food, gridArray}) => 
   <div className='grid-row'>
     {gridArray.map(x => 
       <Cell
@@ -58,7 +33,7 @@ const Row = ({y, snake, food, gridArray}: RowInt) =>
     )}
   </div>
 
-const Cell = ({x, y, snake, food, gridSize}: CellIntWithInfo): JSX.Element => 
+const Cell = ({x, y, snake, food, gridSize}) => 
   <div className={
       isBorder(x, y, gridSize) ? 'border cell ' : 'cell ' + 
       (snake.filter(cell => cell.x === x && cell.y === y).length > 0 ? 'snake ' : ' ') + 

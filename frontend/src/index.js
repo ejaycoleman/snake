@@ -1,29 +1,12 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://localhost:4000";
-
-const SocketWrapper = () => {
-  useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("FromAPI", data => {
-      console.log(data);
-    });
-  }, []);
-
-  return (
-    <App />
-  );
-}
-
-
 ReactDOM.render(
   <React.StrictMode>
-    <SocketWrapper />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
