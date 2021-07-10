@@ -7,13 +7,16 @@ import reportWebVitals from './reportWebVitals';
 import {SocketContext, socket} from './socketContext';
 
 import {RoomProvider} from './RoomContext'
+import {RoomIDProvider} from './RoomIDContext'
 
 
 ReactDOM.render(
   <React.StrictMode>
     <SocketContext.Provider value={socket}>
       <RoomProvider>
-        <App />
+        <RoomIDProvider>
+          <App />
+        </RoomIDProvider>
       </RoomProvider>
     </SocketContext.Provider>
   </React.StrictMode>,

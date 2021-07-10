@@ -3,6 +3,7 @@ import React, {useState, useContext, useEffect} from 'react'
 import { SocketContext } from '../socketContext'
 
 import { RoomContext } from '../RoomContext'
+import { RoomIDContext } from '../RoomIDContext'
 
 const JoinRoom = () => {
     const [room, setRoom] = useState(0)
@@ -12,10 +13,12 @@ const JoinRoom = () => {
     const socket = useContext(SocketContext)
 
     const admin = useContext(RoomContext)
+    const theRoom = useContext(RoomIDContext)
 
     useEffect(() => {
         socket.on("newRoom", data => {
             setRoom(data)
+            theRoom.setRoom(data)
 
             admin.setAdmin(true)
 
@@ -26,7 +29,7 @@ const JoinRoom = () => {
     const joinNewRoom = () => {
         socket.emit('joinRoom', joinRoom, (response) => {
             setRoom(response.room)
-
+            theRoom.setRoom(response.room)
             admin.setAdmin(false)
         })
         
@@ -40,7 +43,7 @@ const JoinRoom = () => {
             <input type="number" name="roomID" value={joinRoom} onChange={e => setJoinRoom(parseInt(e.target.value))} />
             <button onClick={joinNewRoom}>Join</button>
 
-            {admin.admin ? 'yes' : 'no'}
+            {/* {admin.admin ? 'yes' : 'no'} */}
         </div>
     )
 }

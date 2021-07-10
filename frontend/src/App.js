@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import './App.css';
 
 import Grid from './Grid/Grid'
 import JoinRoom from './JoinRoom/JoinRoom'
 
-
+import { SocketContext } from './socketContext'
+import { RoomContext } from './RoomContext'
+import { RoomIDContext } from './RoomIDContext'
 
 const gridArray = []
 const gridSize = 35;
@@ -43,6 +45,12 @@ const App = () => {
   const [food, setFood] = useState({x: 10, y: 10})
   const [score, setScore] = useState(0)
 
+
+  const admin = useContext(RoomContext)
+  const socket = useContext(SocketContext)
+  const theRoom = useContext(RoomIDContext)
+
+
   useEffect(() => {
     const onTick = () => {
       const tempSnake = [...snake]
@@ -57,8 +65,22 @@ const App = () => {
       setSnake(tempSnake)
 
       if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
-        setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
-        currDirection = "DOWN"
+        if (admin.admin && tempSnake[0].x === gridSize) {
+          console.log('move to right (non admin)')
+          socket.emit('moveToNonAdmin', tempSnake[0].y, theRoom.room, () => {
+            tempSnake.shift()
+          })
+
+        } else if (!admin.admin && tempSnake[0].x === 0) {
+          console.log('move to left (admin)')
+          socket.emit('moveToAdmin', tempSnake[0].y, theRoom.room, () => {
+            tempSnake.shift()
+          }) 
+
+        } else {
+          setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+          currDirection = "DOWN"
+        }
       }
     };
 
@@ -67,6 +89,7 @@ const App = () => {
     return () => clearInterval(interval);
   }, [snake]);
 
+  
   const onChangeDirection = (event) => {
     if (KEY_CODES_MAPPER[event.keyCode]) {
       if (
@@ -82,6 +105,21 @@ const App = () => {
 
   useEffect(() => {
     window.addEventListener('keyup', onChangeDirection, false);
+
+
+    socket.on('addToNonAdmin', y => {
+      console.log('adding to NON admin')
+      console.log(y)
+    })
+  
+    socket.on('addToAdmin', y => {
+      console.log('adding to admin')
+      console.log(y)
+    })
+
+    
+
+    
 
     return () =>
       window.removeEventListener('keyup', onChangeDirection, false);
