@@ -6,11 +6,7 @@ const SocketContext = React.createContext()
 
 const SocketProvider = ({ children }) => {
     const ENDPOINT = "http://localhost:4000";
-    let socket = null;
-
-    useEffect(() => {
-        socket = io(ENDPOINT, { transports: ['websocket', 'polling'] })
-    }, [])
+    const socket = io(ENDPOINT, { transports: ['websocket', 'polling'] })
 
     return (
         <SocketContext.Provider value={socket}>

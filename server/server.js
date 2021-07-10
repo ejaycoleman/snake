@@ -26,6 +26,20 @@ io.on("connection", (socket) => {
     clearInterval(interval);
   }
   interval = setInterval(() => getApiAndEmit(socket), 1000);
+
+
+
+  let rooms = 0
+  socket.emit('newRoom', ++rooms)
+  socket.join(rooms);
+
+
+  socket.on('joinRoom', room => {
+    socket.join(room);
+  })
+
+
+
   socket.on("disconnect", () => {
     console.log("Client disconnected");
     clearInterval(interval);
