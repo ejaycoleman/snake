@@ -16,8 +16,10 @@ const JoinRoom = () => {
 
 
     const joinNewRoom = () => {
-        socket.emit('joinRoom', joinRoom)
-        setRoom(joinRoom)
+        socket.emit('joinRoom', joinRoom, (response) => {
+            setRoom(response.room)
+        })
+        
     }
 
     return (
