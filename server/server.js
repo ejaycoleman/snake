@@ -27,6 +27,7 @@ io.on("connection", (socket) => {
 
   socket.on('joinRoom', (room, callback) => {
     socket.join(room);
+    socket.to(room).emit('userJoined')
     callback({
       room
     });
