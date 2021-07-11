@@ -55,33 +55,39 @@ const App = () => {
     const onTick = () => {
       const tempSnake = [...snake]
       tempSnake.pop()
-      tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-      if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
-        setFood(randCoord())
+
+      if(tempSnake.length !== 0) {
         tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-        setScore(score + 1)
-      } 
+        if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
+          setFood(randCoord())
+          tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+          setScore(score + 1)
+        } 
+  
+        setSnake(tempSnake)
 
-      setSnake(tempSnake)
-
-      if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
-        if (admin.admin && tempSnake[0].x === gridSize) {
-          console.log('move to right (non admin)')
-          socket.emit('moveToNonAdmin', tempSnake[0].y, theRoom.room, () => {
-            tempSnake.shift()
-          })
-
-        } else if (!admin.admin && tempSnake[0].x === 0) {
-          console.log('move to left (admin)')
-          socket.emit('moveToAdmin', tempSnake[0].y, theRoom.room, () => {
-            tempSnake.shift()
-          }) 
-
-        } else {
-          setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
-          currDirection = "DOWN"
+        if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
+          if (admin.admin && tempSnake[0].x === gridSize) {
+            console.log('move to right (non admin)')
+            socket.emit('moveToNonAdmin', tempSnake[0].y, theRoom.room, () => {
+              tempSnake.shift()
+            })
+  
+          } else if (!admin.admin && tempSnake[0].x === 0) {
+            console.log('move to left (admin)')
+            socket.emit('moveToAdmin', tempSnake[0].y, theRoom.room, () => {
+              tempSnake.shift()
+            }) 
+  
+          } else {
+            setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+            currDirection = "DOWN"
+          }
         }
       }
+      
+
+      
     };
 
     const interval = setInterval(onTick, 100);
@@ -108,18 +114,22 @@ const App = () => {
 
 
     socket.on('addToNonAdmin', y => {
-      console.log('adding to NON admin')
-      console.log(y)
+      currDirection = 'RIGHT'
+      const tempSnake = [...snake]
+      tempSnake.unshift({x: 0, y})
+      setSnake(tempSnake)
     })
   
     socket.on('addToAdmin', y => {
-      console.log('adding to admin')
-      console.log(y)
+      currDirection = 'LEFT'
+      const tempSnake = [...snake]
+      tempSnake.unshift({x: gridSize - 1, y})
+      setSnake(tempSnake)
     })
 
     
 
-    
+
 
     return () =>
       window.removeEventListener('keyup', onChangeDirection, false);
