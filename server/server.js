@@ -35,18 +35,18 @@ io.on("connection", (socket) => {
 
 
 
-  socket.on('moveToNonAdmin', (y, socketsRoom, removeTheSnake) => {
-    removeTheSnake()
-    socket.to(socketsRoom).emit('addToNonAdmin', y)
+  socket.on('moveToNonAdmin', (y, length, socketsRoom) => {
+    // removeTheSnake()
+    socket.to(socketsRoom).emit('addToNonAdmin', y, length)
 
-    console.log('move')
+    // console.log('move')
   })
 
-  socket.on('moveToAdmin', (y, socketsRoom, removeTheSnake) => {
-    removeTheSnake()
-    socket.to(socketsRoom).emit('addToAdmin', y)
+  socket.on('moveToAdmin', (y, length, socketsRoom) => {
+    // removeTheSnake()
+    socket.to(socketsRoom).emit('addToAdmin', y, length)
 
-    console.log('move2')
+    // console.log('move2')
   })
 
 

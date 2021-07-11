@@ -41,7 +41,7 @@ const checkCollision = (snake)  => {
 }
 
 const App = () => {
-  const [snake, setSnake] = useState([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]);
+  const [snake, setSnake] = useState([]);
   const [food, setFood] = useState({x: 10, y: 10})
   const [score, setScore] = useState(0)
 
@@ -54,10 +54,11 @@ const App = () => {
   useEffect(() => {
     const onTick = () => {
       const tempSnake = [...snake]
-      tempSnake.pop()
+      
 
       if(tempSnake.length !== 0) {
         tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+        tempSnake.pop()
         if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
           setFood(randCoord())
           tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
@@ -68,16 +69,13 @@ const App = () => {
 
         if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
           if (admin.admin && tempSnake[0].x === gridSize) {
-            console.log('move to right (non admin)')
-            socket.emit('moveToNonAdmin', tempSnake[0].y, theRoom.room, () => {
-              tempSnake.shift()
-            })
+            // socket.emit('moveToNonAdmin', tempSnake[0].y, theRoom.room, () => {
+            //   tempSnake.shift()
+            // })
+            socket.emit('moveToNonAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
   
           } else if (!admin.admin && tempSnake[0].x === 0) {
-            console.log('move to left (admin)')
-            socket.emit('moveToAdmin', tempSnake[0].y, theRoom.room, () => {
-              tempSnake.shift()
-            }) 
+            socket.emit('moveToAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
   
           } else {
             setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
@@ -85,6 +83,8 @@ const App = () => {
           }
         }
       }
+
+      // }
       
 
       
@@ -112,18 +112,51 @@ const App = () => {
   useEffect(() => {
     window.addEventListener('keyup', onChangeDirection, false);
 
+    setSnake([{x: 10, y: 16}, {x: 10, y: 15}])
 
-    socket.on('addToNonAdmin', y => {
+
+    
+    socket.on('addToNonAdmin', (y, length) => {
       currDirection = 'RIGHT'
-      const tempSnake = [...snake]
-      tempSnake.unshift({x: 0, y})
+      const tempSnake = []
+      // if (tempSnake[0]?.x === 1 && tempSnake[0]?.y === y) {
+      //   tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+      // }
+
+      // if (tempSnake[])
+
+      // tempSnake.unshift({x: 1, y})
+      // tempSnake.push*
+
+      for (let i = 0; i < length; i++) {
+        tempSnake.push({x: (1 - i), y})
+      }
+
       setSnake(tempSnake)
     })
   
-    socket.on('addToAdmin', y => {
+    socket.on('addToAdmin', (y, length) => {
       currDirection = 'LEFT'
-      const tempSnake = [...snake]
-      tempSnake.unshift({x: gridSize - 1, y})
+
+      const tempSnake = []
+      
+      // if (tempSnake[0] && tempSnake[0].x === (gridSize - 1)) {
+      //   tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+      // } else {
+
+      for (let i = 0; i < length; i++) {
+        tempSnake.push({x: (gridSize + i), y})
+      }
+      
+
+      
+      // setTimeout(function(){ tempSnake.unshift({x: (gridSize - 1), y}) }, 900);
+      // tempSnake.push({x: (gridSize), y})
+      // }
+
+      // NOTES
+      // I think the best way to do this is to only send the socket when the head collides
+
       setSnake(tempSnake)
     })
 
@@ -139,7 +172,7 @@ const App = () => {
     <div className="App">
         <JoinRoom></JoinRoom>
         <h1>YOUR SCORE IS {score}</h1>
-        <Grid snake={snake} food={food} gridArray={gridArray} />
+        {snake?.length && <Grid snake={snake} food={food} gridArray={gridArray} />}
     </div>
   );
 }
