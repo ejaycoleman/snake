@@ -18,20 +18,9 @@ const io = socketIO(server, {
     }
 });
 
-// let interval;
-
 let rooms = 0
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
-  // if (interval) {
-  //   clearInterval(interval);
-  // }
-  // interval = setInterval(() => getApiAndEmit(socket), 1000);
-
-
-
-  
   socket.emit('newRoom', ++rooms)
   socket.join(rooms);
 
@@ -45,15 +34,26 @@ io.on("connection", (socket) => {
 
 
 
+
+  socket.on('moveToNonAdmin', (y, length, socketsRoom) => {
+    // removeTheSnake()
+    socket.to(socketsRoom).emit('addToNonAdmin', y, length)
+
+    // console.log('move')
+  })
+
+  socket.on('moveToAdmin', (y, length, socketsRoom) => {
+    // removeTheSnake()
+    socket.to(socketsRoom).emit('addToAdmin', y, length)
+
+    // console.log('move2')
+  })
+
+
   
   socket.on("disconnect", () => {
     console.log("Client disconnected");
-    // clearInterval(interval);
   });
 });
-
-// const getApiAndEmit = socket => {
-//   socket.emit("FromAPI", "MSG");
-// };
 
 server.listen(port, () => console.log(`Listening on port ${port}`));

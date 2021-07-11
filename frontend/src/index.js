@@ -6,11 +6,18 @@ import reportWebVitals from './reportWebVitals';
 
 import {SocketContext, socket} from './socketContext';
 
+import {RoomProvider} from './RoomContext'
+import {RoomIDProvider} from './RoomIDContext'
+
 
 ReactDOM.render(
   <React.StrictMode>
     <SocketContext.Provider value={socket}>
-      <App />
+      <RoomProvider>
+        <RoomIDProvider>
+          <App />
+        </RoomIDProvider>
+      </RoomProvider>
     </SocketContext.Provider>
   </React.StrictMode>,
   document.getElementById('root')

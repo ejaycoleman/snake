@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import './App.css';
 
 import Grid from './Grid/Grid'
 import JoinRoom from './JoinRoom/JoinRoom'
 
-
+import { SocketContext } from './socketContext'
+import { RoomContext } from './RoomContext'
+import { RoomIDContext } from './RoomIDContext'
 
 const gridArray = []
 const gridSize = 35;
@@ -39,26 +41,42 @@ const checkCollision = (snake)  => {
 }
 
 const App = () => {
-  const [snake, setSnake] = useState([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}]);
+  const [snake, setSnake] = useState([]);
   const [food, setFood] = useState({x: 10, y: 10})
   const [score, setScore] = useState(0)
+
+
+  const admin = useContext(RoomContext)
+  const socket = useContext(SocketContext)
+  const theRoom = useContext(RoomIDContext)
+
 
   useEffect(() => {
     const onTick = () => {
       const tempSnake = [...snake]
-      tempSnake.pop()
-      tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-      if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
-        setFood(randCoord())
+      
+
+      if(tempSnake.length !== 0) {
         tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
-        setScore(score + 1)
-      } 
+        tempSnake.pop()
+        if (tempSnake[0].x === food.x && tempSnake[0].y === food.y) {
+          setFood(randCoord())
+          tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
+          setScore(score + 1)
+        } 
+  
+        setSnake(tempSnake)
 
-      setSnake(tempSnake)
-
-      if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
-        setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
-        currDirection = "DOWN"
+        if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
+          if (admin.admin && tempSnake[0].x === gridSize) {
+            socket.emit('moveToNonAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
+          } else if (!admin.admin && tempSnake[0].x === 0) {
+            socket.emit('moveToAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
+          } else {
+            setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+            currDirection = "DOWN"
+          }
+        }
       }
     };
 
@@ -67,6 +85,7 @@ const App = () => {
     return () => clearInterval(interval);
   }, [snake]);
 
+  
   const onChangeDirection = (event) => {
     if (KEY_CODES_MAPPER[event.keyCode]) {
       if (
@@ -83,6 +102,31 @@ const App = () => {
   useEffect(() => {
     window.addEventListener('keyup', onChangeDirection, false);
 
+    setSnake([{x: 10, y: 16}, {x: 10, y: 15}])
+    
+    socket.on('addToNonAdmin', (y, length) => {
+      currDirection = 'RIGHT'
+      const tempSnake = []
+
+      for (let i = 0; i < length; i++) {
+        tempSnake.push({x: (1 - i), y})
+      }
+
+      setSnake(tempSnake)
+    })
+  
+    socket.on('addToAdmin', (y, length) => {
+      currDirection = 'LEFT'
+      const tempSnake = []
+      
+      for (let i = 0; i < length; i++) {
+        tempSnake.push({x: (gridSize + i), y})
+      }
+    
+      setSnake(tempSnake)
+    })
+
+
     return () =>
       window.removeEventListener('keyup', onChangeDirection, false);
   }, []);
@@ -91,12 +135,10 @@ const App = () => {
     <div className="App">
         <JoinRoom></JoinRoom>
         <h1>YOUR SCORE IS {score}</h1>
-        <Grid snake={snake} food={food} gridArray={gridArray} />
+        {snake?.length && <Grid snake={snake} food={food} gridArray={gridArray} />}
     </div>
   );
 }
-
-
 
 
 export default App;

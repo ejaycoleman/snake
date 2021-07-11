@@ -1,7 +1,4 @@
-import React, {useContext, useEffect} from 'react'
-
-// import { SocketContext } from '../socketContext'
-
+import React from 'react'
 
 const isBorder = (x, y, gridSize) => 
   x === 0 || y === 0 || x === (gridSize - 1) || y === (gridSize - 1)
