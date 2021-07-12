@@ -45,7 +45,7 @@ const JoinRoom = ({startGame}) => {
     }
 
     const startPlay = () => {
-        socket.emit('startPlay', joinRoom, () => {
+        socket.emit('startPlay', room, () => {
             startGame(true)
         })
     }
