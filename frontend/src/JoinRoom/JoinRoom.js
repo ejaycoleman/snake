@@ -5,7 +5,7 @@ import { SocketContext } from '../socketContext'
 import { RoomContext } from '../RoomContext'
 import { RoomIDContext } from '../RoomIDContext'
 
-const JoinRoom = () => {
+const JoinRoom = ({startGame}) => {
     const [room, setRoom] = useState(0)
 
     const [joinRoom, setJoinRoom] = useState(0)
@@ -44,8 +44,11 @@ const JoinRoom = () => {
     return (
         <div>
             <h1>Welcome!</h1>
-            <h2>You are currently hosting a game in room: {room}</h2>
-            {waiting && <h3>Waiting for second player</h3>}
+            <h2>You are currently {admin.admin ? 'hosting' : 'waiting in'} a game in room: {room}</h2>
+            {admin.admin && waiting ? <h3>Waiting for second player</h3>:
+            <button onClick={() => startGame(true)}>Play</button>
+            
+            }
             Join another room?
 
             <input type="number" name="roomID" value={joinRoom} onChange={e => setJoinRoom(parseInt(e.target.value))} />

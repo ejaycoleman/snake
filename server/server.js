@@ -37,23 +37,17 @@ io.on("connection", (socket) => {
 
 
   socket.on('moveToNonAdmin', (y, length, socketsRoom) => {
-    // removeTheSnake()
     socket.to(socketsRoom).emit('addToNonAdmin', y, length)
-
-    // console.log('move')
   })
 
   socket.on('moveToAdmin', (y, length, socketsRoom) => {
-    // removeTheSnake()
     socket.to(socketsRoom).emit('addToAdmin', y, length)
-
-    // console.log('move2')
   })
 
 
   
   socket.on("disconnect", () => {
-    console.log("Client disconnected");
+    // console.log("Client disconnected");
   });
 });
 
