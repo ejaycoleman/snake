@@ -34,6 +34,10 @@ io.on("connection", (socket) => {
   })
 
 
+  socket.on('startPlay', (room, callback) => {
+    socket.to(room).emit('gameStarted')
+    callback()
+  })
 
 
   socket.on('moveToNonAdmin', (y, length, socketsRoom) => {

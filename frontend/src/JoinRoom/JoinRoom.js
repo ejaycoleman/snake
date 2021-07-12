@@ -29,6 +29,10 @@ const JoinRoom = ({startGame}) => {
         socket.on('userJoined', data => {
             setWaiting(false)
         })
+
+        socket.on('gameStarted', data => {
+            startGame(true)
+        })
     }, [])
 
 
@@ -38,7 +42,12 @@ const JoinRoom = ({startGame}) => {
             theRoom.setRoom(response.room)
             admin.setAdmin(false)
         })
-        
+    }
+
+    const startPlay = () => {
+        socket.emit('startPlay', joinRoom, () => {
+            startGame(true)
+        })
     }
 
     return (
@@ -46,7 +55,7 @@ const JoinRoom = ({startGame}) => {
             <h1>Welcome!</h1>
             <h2>You are currently {admin.admin ? 'hosting' : 'waiting in'} a game in room: {room}</h2>
             {admin.admin && waiting ? <h3>Waiting for second player</h3>:
-            <button onClick={() => startGame(true)}>Play</button>
+            <button onClick={() => startPlay()}>Play</button>
             
             }
             Join another room?
