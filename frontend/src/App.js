@@ -45,6 +45,8 @@ const App = () => {
   const [food, setFood] = useState({x: 10, y: 10})
   const [score, setScore] = useState(0)
 
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(false)
+
 
   const admin = useContext(RoomContext)
   const socket = useContext(SocketContext)
@@ -133,9 +135,11 @@ const App = () => {
 
   return (
     <div className="App">
-        <JoinRoom></JoinRoom>
-        <h1>YOUR SCORE IS {score}</h1>
-        {snake?.length && <Grid snake={snake} food={food} gridArray={gridArray} />}
+      {currentlyPlaying ? 
+        snake?.length && <Grid snake={snake} food={food} gridArray={gridArray} />
+        :    <div><h1>YOUR SCORE IS {score}</h1>
+        <JoinRoom startGame={setCurrentlyPlaying}></JoinRoom></div>
+    }   
     </div>
   );
 }

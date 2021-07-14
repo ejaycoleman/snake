@@ -5,10 +5,12 @@ import { SocketContext } from '../socketContext'
 import { RoomContext } from '../RoomContext'
 import { RoomIDContext } from '../RoomIDContext'
 
-const JoinRoom = () => {
+const JoinRoom = ({startGame}) => {
     const [room, setRoom] = useState(0)
 
     const [joinRoom, setJoinRoom] = useState(0)
+
+    const [waiting, setWaiting] = useState(true)
 
     const socket = useContext(SocketContext)
 
@@ -23,6 +25,14 @@ const JoinRoom = () => {
             admin.setAdmin(true)
 
         });
+
+        socket.on('userJoined', data => {
+            setWaiting(false)
+        })
+
+        socket.on('gameStarted', data => {
+            startGame(true)
+        })
     }, [])
 
 
@@ -32,18 +42,26 @@ const JoinRoom = () => {
             theRoom.setRoom(response.room)
             admin.setAdmin(false)
         })
-        
+    }
+
+    const startPlay = () => {
+        socket.emit('startPlay', room, () => {
+            startGame(true)
+        })
     }
 
     return (
         <div>
-            <h1>You are in room: {room}</h1>
-            <h3>Join another room?</h3>
+            <h1>Welcome!</h1>
+            <h2>You are currently {admin.admin ? 'hosting' : 'waiting in'} a game in room: {room}</h2>
+            {admin.admin && waiting ? <h3>Waiting for second player</h3>:
+            <button onClick={() => startPlay()}>Play</button>
+            
+            }
+            Join another room?
 
             <input type="number" name="roomID" value={joinRoom} onChange={e => setJoinRoom(parseInt(e.target.value))} />
             <button onClick={joinNewRoom}>Join</button>
-
-            {/* {admin.admin ? 'yes' : 'no'} */}
         </div>
     )
 }
