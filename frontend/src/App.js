@@ -34,7 +34,8 @@ const direction = {
   RIGHT: (x, y) => ({x: x + 1, y})
 }
 
-let currDirection = "DOWN"
+let currDirection
+let currentScreen
 
 const checkCollision = (snake)  => {
   return new Set(snake.map(s => s.x + "|" + s.y)).size < snake.length
@@ -52,12 +53,20 @@ const App = () => {
   const socket = useContext(SocketContext)
   const theRoom = useContext(RoomIDContext)
 
+  useEffect(() => {
+    if (admin.admin) {
+      setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+      currDirection = "DOWN"
+      currentScreen = true
+    } else {
+      currentScreen = false
+    }
+  }, [currentlyPlaying])
+
 
   useEffect(() => {
     const onTick = () => {
       const tempSnake = [...snake]
-      
-
       if(tempSnake.length !== 0) {
         tempSnake.unshift(direction[currDirection](tempSnake[0].x, tempSnake[0].y))
         tempSnake.pop()
@@ -69,16 +78,22 @@ const App = () => {
   
         setSnake(tempSnake)
 
-        if (tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake)) {
+        if ((tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake))) {
           if (admin.admin && tempSnake[0].x === gridSize) {
-            socket.emit('moveToNonAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
+            socket.emit('moveToNonAdmin', tempSnake[0].y, tempSnake.length, theRoom.room)
+            currentScreen = false 
           } else if (!admin.admin && tempSnake[0].x === 0) {
             socket.emit('moveToAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
-          } else {
+            currentScreen = false
+          } else if (admin.admin && currentScreen) {
             setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
             currDirection = "DOWN"
+          } else if (currentScreen) {
+            socket.emit('snakeDied', theRoom.room)
           }
         }
+      } else {
+        setSnake([])
       }
     };
 
@@ -104,10 +119,9 @@ const App = () => {
   useEffect(() => {
     window.addEventListener('keyup', onChangeDirection, false);
 
-    setSnake([{x: 10, y: 16}, {x: 10, y: 15}])
-    
     socket.on('addToNonAdmin', (y, length) => {
       currDirection = 'RIGHT'
+      currentScreen = true
       const tempSnake = []
 
       for (let i = 0; i < length; i++) {
@@ -119,6 +133,7 @@ const App = () => {
   
     socket.on('addToAdmin', (y, length) => {
       currDirection = 'LEFT'
+      currentScreen = true
       const tempSnake = []
       
       for (let i = 0; i < length; i++) {
@@ -128,6 +143,14 @@ const App = () => {
       setSnake(tempSnake)
     })
 
+    socket.on('resetSnake', () => {
+      if (admin.admin) {
+        currentScreen = true
+        setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+        currDirection = "DOWN"
+      }
+    })
+
 
     return () =>
       window.removeEventListener('keyup', onChangeDirection, false);
@@ -135,10 +158,10 @@ const App = () => {
 
   return (
     <div className="App">
-      {currentlyPlaying ? 
-        snake?.length && <Grid snake={snake} food={food} gridArray={gridArray} />
-        :    <div><h1>YOUR SCORE IS {score}</h1>
-        <JoinRoom startGame={setCurrentlyPlaying}></JoinRoom></div>
+      {currentlyPlaying ? (
+        <div><Grid snake={snake} food={food} gridArray={gridArray} /><h1>YOUR SCORE IS {score}</h1></div>)
+        :    
+        <JoinRoom startGame={setCurrentlyPlaying}></JoinRoom>
     }   
     </div>
   );

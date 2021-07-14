@@ -8,7 +8,7 @@ import { RoomIDContext } from '../RoomIDContext'
 const JoinRoom = ({startGame}) => {
     const [room, setRoom] = useState(0)
 
-    const [joinRoom, setJoinRoom] = useState(0)
+    const [joinRoom, setJoinRoom] = useState()
 
     const [waiting, setWaiting] = useState(true)
 
@@ -54,13 +54,13 @@ const JoinRoom = ({startGame}) => {
         <div>
             <h1>Welcome!</h1>
             <h2>You are currently {admin.admin ? 'hosting' : 'waiting in'} a game in room: {room}</h2>
-            {admin.admin && waiting ? <h3>Waiting for second player</h3>:
-            <button onClick={() => startPlay()}>Play</button>
+            {admin.admin && (waiting ? <h3>Waiting for second player</h3>:
+            <button onClick={() => startPlay()}>Play</button>)
             
             }
             Join another room?
 
-            <input type="number" name="roomID" value={joinRoom} onChange={e => setJoinRoom(parseInt(e.target.value))} />
+            <input type="number" name="roomID" placeholder='Join another room?' value={joinRoom} onChange={e => setJoinRoom(parseInt(e.target.value))} />
             <button onClick={joinNewRoom}>Join</button>
         </div>
     )
