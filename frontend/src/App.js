@@ -159,7 +159,7 @@ const App = () => {
   return (
     <div className="App">
       {currentlyPlaying ? (
-        <div><Grid snake={snake} food={food} gridArray={gridArray} /><h1>YOUR SCORE IS {score}</h1></div>)
+        <div><h1>YOUR SCORE IS {score}</h1><Grid snake={snake} food={food} gridArray={gridArray} /></div>)
         :    
         <JoinRoom startGame={setCurrentlyPlaying}></JoinRoom>
     }   
