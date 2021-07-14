@@ -88,6 +88,8 @@ const App = () => {
           } else if (admin.admin && currentScreen) {
             setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
             currDirection = "DOWN"
+          } else if (currentScreen) {
+            socket.emit('snakeDied', theRoom.room)
           }
         }
       } else {
@@ -139,6 +141,14 @@ const App = () => {
       }
     
       setSnake(tempSnake)
+    })
+
+    socket.on('resetSnake', () => {
+      if (admin.admin) {
+        currentScreen = true
+        setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
+        currDirection = "DOWN"
+      }
     })
 
 

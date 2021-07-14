@@ -49,6 +49,11 @@ io.on("connection", (socket) => {
   })
 
 
+  socket.on('snakeDied', (socketsRoom) => {
+    socket.to(socketsRoom).emit('resetSnake')
+  })
+
+
   
   socket.on("disconnect", () => {
     // console.log("Client disconnected");
