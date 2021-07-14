@@ -35,6 +35,7 @@ const direction = {
 }
 
 let currDirection
+let currentScreen
 
 const checkCollision = (snake)  => {
   return new Set(snake.map(s => s.x + "|" + s.y)).size < snake.length
@@ -56,7 +57,10 @@ const App = () => {
     if (admin.admin) {
       setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
       currDirection = "DOWN"
-    } 
+      currentScreen = true
+    } else {
+      currentScreen = false
+    }
   }, [currentlyPlaying])
 
 
@@ -76,10 +80,12 @@ const App = () => {
 
         if ((tempSnake[0].x === 0 || tempSnake[0].y === 0 || tempSnake[0].x === gridSize || tempSnake[0].y === gridSize || checkCollision(snake))) {
           if (admin.admin && tempSnake[0].x === gridSize) {
-            socket.emit('moveToNonAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
+            socket.emit('moveToNonAdmin', tempSnake[0].y, tempSnake.length, theRoom.room)
+            currentScreen = false 
           } else if (!admin.admin && tempSnake[0].x === 0) {
             socket.emit('moveToAdmin', tempSnake[0].y, tempSnake.length, theRoom.room) 
-          } else if (admin.admin) {
+            currentScreen = false
+          } else if (admin.admin && currentScreen) {
             setSnake([{x: 7, y: 16}, {x: 7, y: 15}, {x: 7, y: 14}])
             currDirection = "DOWN"
           }
@@ -113,6 +119,7 @@ const App = () => {
 
     socket.on('addToNonAdmin', (y, length) => {
       currDirection = 'RIGHT'
+      currentScreen = true
       const tempSnake = []
 
       for (let i = 0; i < length; i++) {
@@ -124,6 +131,7 @@ const App = () => {
   
     socket.on('addToAdmin', (y, length) => {
       currDirection = 'LEFT'
+      currentScreen = true
       const tempSnake = []
       
       for (let i = 0; i < length; i++) {
